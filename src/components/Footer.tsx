@@ -25,7 +25,7 @@ export default function Footer() {
             </div>
 
             <div className="text-sm font-medium text-white">
-              Support: <a href="mailto:support@example.com" className="hover:underline">support@example.com</a>
+              Support: <a href="mailto:wanghongjie031001@gmail.com" className="hover:underline">wanghongjie031001@gmail.com</a>
             </div>
           </div>
         </div>
