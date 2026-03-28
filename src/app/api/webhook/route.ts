@@ -15,14 +15,14 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
   }
 
-  const eventName = body.meta?.event_name as string | undefined;
+  const eventName = (body as any).meta?.event_name as string | undefined;
 
   if (eventName !== 'order_created') {
     return NextResponse.json({ success: true, message: 'Event ignored' }, { status: 200 });
   }
 
-  const orderId = body.data?.id as string | undefined;
-  const userEmail = (body.data?.attributes as Record<string, unknown> | undefined)?.user_email as string | undefined;
+  const orderId = (body as any).meta?.id as string | undefined;
+  const userEmail = ((body as any).data?.attributes as Record<string, unknown> | undefined)?.user_email as string | undefined;
 
   if (!orderId || !userEmail) {
     console.log('Missing required fields: orderId or email');
