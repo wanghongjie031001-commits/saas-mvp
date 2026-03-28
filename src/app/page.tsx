@@ -16,9 +16,9 @@ export default function Home() {
         <p className="text-lg md:text-xl text-gray-600 mb-8 max-w-xl">
           The all-in-one solution to streamline your business operations, boost productivity, and scale effortlessly.
         </p>
-        <button className="px-8 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors">
+        <a href="https://modern-workflow.lemonsqueezy.com/checkout/buy/c181b6f0-f121-4e95-bc11-80189e60bc77" className="px-8 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors">
           Buy Now
-        </button>
+        </a>
       </section>
 
       {/* Features Section */}
