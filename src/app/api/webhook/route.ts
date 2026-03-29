@@ -1,43 +1,49 @@
 import { NextResponse } from 'next/server';
+import crypto from 'crypto';
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
-
-export async function POST(request: Request) {
-  let body: Record<string, unknown>;
-
+export async function POST(req: Request) {
   try {
-    body = await request.json();
-  } catch {
-    return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
+    const rawBody = await req.text();
+    const signature = req.headers.get('x-signature') || '';
+    const secret = process.env.LEMON_SQUEEZY_WEBHOOK_SECRET || '';
+
+    if (!secret) {
+      return NextResponse.json({ error: '致命缺失：Webhook 安全密钥未配置' }, { status: 500 });
+    }
+
+    const hmac = crypto.createHmac('sha256', secret);
+    const digest = Buffer.from(hmac.update(rawBody).digest('hex'), 'utf8');
+    const signatureBuffer = Buffer.from(signature, 'utf8');
+
+    if (digest.length !== signatureBuffer.length || !crypto.timingSafeEqual(digest, signatureBuffer)) {
+      return NextResponse.json({ error: '拦截：非法伪造的支付请求' }, { status: 401 });
+    }
+
+    const payload = JSON.parse(rawBody);
+    const eventName = payload.meta.event_name;
+
+    if (eventName === 'order_created') {
+      const userEmail = payload.data.attributes.user_email;
+
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+      const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!; 
+      const supabase = createClient(supabaseUrl, supabaseKey);
+
+      const { error } = await supabase
+        .from('orders')
+        .upsert({ user_email: userEmail, status: 'paid' }, { onConflict: 'user_email' });
+
+      if (error) {
+        console.error('数据库落库异常:', error);
+        return NextResponse.json({ error: '数据同步失败' }, { status: 500 });
+      }
+    }
+
+    return NextResponse.json({ message: '自动化发货执行完毕' }, { status: 200 });
+    
+  } catch (error: any) {
+    console.error('Webhook 级联故障:', error);
+    return NextResponse.json({ error: '内部网关崩溃' }, { status: 500 });
   }
-
-  const eventName = (body as any).meta?.event_name as string | undefined;
-
-  if (eventName !== 'order_created') {
-    return NextResponse.json({ success: true, message: 'Event ignored' }, { status: 200 });
-  }
-
-  const orderId = (body as any).meta?.id as string | undefined;
-  const userEmail = ((body as any).data?.attributes as Record<string, unknown> | undefined)?.user_email as string | undefined;
-
-  if (!orderId || !userEmail) {
-    console.log('Missing required fields: orderId or email');
-    return NextResponse.json({ error: 'Missing order ID or email' }, { status: 400 });
-  }
-
-  const { data, error } = await supabase
-    .from('orders')
-    .insert({ order_id: orderId, user_email: userEmail });
-
-  if (error) {
-    console.error('Supabase insert error:', error);
-    return NextResponse.json({ error: 'Failed to insert order' }, { status: 500 });
-  }
-
-  console.log(`Order ${orderId} for ${userEmail} inserted successfully`);
-  return NextResponse.json({ success: true }, { status: 200 });
 }
