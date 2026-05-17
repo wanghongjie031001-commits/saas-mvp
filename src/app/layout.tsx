@@ -1,21 +1,10 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Footer from "@/components/Footer";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
 export const metadata: Metadata = {
-  title: "SaaS Product - Modern Solutions for Your Business",
-  description: "Streamline your workflow with our powerful SaaS platform. Start your free trial today.",
+  title: "AI 获客增长系统",
+  description: "根据行业、客群、预算和目标，在线生成可执行的客户获取方案。",
 };
 
 export default function RootLayout({
@@ -24,10 +13,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-    >
+    <html lang="zh-CN" className="h-full antialiased">
       <body className="min-h-full flex flex-col">
         {children}
         <Footer />
