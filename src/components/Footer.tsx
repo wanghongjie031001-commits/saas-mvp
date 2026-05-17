@@ -7,7 +7,7 @@ export default function Footer() {
         <div className="flex flex-col md:flex-row justify-between items-center gap-4">
           <div className="flex flex-col items-center md:items-start gap-2">
             <div className="text-sm">
-              &copy; {new Date().getFullYear()} SaaS Product. All rights reserved.
+              &copy; {new Date().getFullYear()} AI 获客增长系统. All rights reserved.
             </div>
           </div>
 

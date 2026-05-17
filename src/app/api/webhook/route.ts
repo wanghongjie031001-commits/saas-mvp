@@ -42,7 +42,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ message: '自动化发货执行完毕' }, { status: 200 });
     
-  } catch (error: any) {
+  } catch (error) {
     console.error('Webhook 级联故障:', error);
     return NextResponse.json({ error: '内部网关崩溃' }, { status: 500 });
   }
